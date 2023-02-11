@@ -41,6 +41,12 @@ class Animation:
         self.body = MakeFrame(p, FS, SW, self.ax, name='b', scale=ScaleFrame)
         self.arrow = MakeArrow(o, FS, SW, self.ax, name='r', scale=ScaleFrame)
 
+        self.origin.setRotation(np.identity(3))
+        self.body.setRotation(np.identity(3))
+        self.arrow.connectOrigin(self.origin)
+        self.arrow.connectEndpoint(self.body)
+        self.graphItems = [self.origin, self.body, self.arrow]
+
     def plotEnv(self):
         # Initiate plot figure
         self.running = False
@@ -74,9 +80,10 @@ class Animation:
             omega = parameters
             R, M = Rotations(state_animate)
 
-            self.origin.update(np.identity(3))
-            self.body.update(R)
-            self.arrow.update(self.body.origin)
+            self.body.setRotation(R)
+            self.body.setOrigin(np.array([3*np.cos(time_display), 3*np.sin(time_display), 3*np.cos(time_display)]))
+
+            for item in self.graphItems: item.update()
 
             self.fig.canvas.draw()
             self.fig.canvas.flush_events()
